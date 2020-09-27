@@ -1,13 +1,13 @@
 import React from "react";
 import defaultDataset from "./dataset.js";
 import "./assets/styles/style.css";
-import { AnswersList } from "./components/index";
+import { AnswersList, Chats } from "./components/index";
 
 type DefaultDataset = typeof defaultDataset;
 
 interface AppState {
   answers: { content: string; nextId: string }[];
-  chats: string[];
+  chats: { text: string; type: string }[];
   currentId: keyof DefaultDataset;
   dataset: DefaultDataset;
   open: boolean;
@@ -25,21 +25,36 @@ export default class App extends React.Component<{}, AppState> {
     };
   }
 
-  initAnswer() {
+  initAnswers() {
     const initDataset = this.state.dataset[this.state.currentId];
     const initAnswers = initDataset.answers;
 
     this.setState({ answers: initAnswers });
   }
 
+  initChats() {
+    const initDataset = this.state.dataset[this.state.currentId];
+    const chat = {
+      text: initDataset.question,
+      type: "question",
+    };
+
+    const chats = this.state.chats;
+    chats.push(chat);
+
+    this.setState({ chats });
+  }
+
   componentDidMount() {
-    this.initAnswer();
+    this.initChats();
+    this.initAnswers();
   }
 
   render() {
     return (
       <section className="c-section">
         <div className="c-box">
+          <Chats chats={this.state.chats} />
           <AnswersList answers={this.state.answers} />
         </div>
       </section>
