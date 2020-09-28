@@ -12,7 +12,7 @@ interface ChatProps {
 
 const Chat: React.FC<ChatProps> = (props) => {
   const isQuestion = props.type === "question";
-  const classes = isQuestion ? "p-chat__row" : ".p-chat__reverse";
+  const classes = isQuestion ? "p-chat__row" : "p-chat__reverse";
 
   return (
     <ListItem className={classes}>
