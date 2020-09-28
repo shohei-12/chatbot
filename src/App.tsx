@@ -46,7 +46,7 @@ export default class App extends React.Component<{}, AppState> {
   selectAnswer(selectedAnswer: string, nextQuestionId: keyof DefaultDataset) {
     switch (true) {
       case nextQuestionId === "init":
-        this.displayNextQuestion(nextQuestionId);
+        setTimeout(() => this.displayNextQuestion(nextQuestionId), 1000);
         break;
       default:
         const chats = this.state.chats;
@@ -57,7 +57,7 @@ export default class App extends React.Component<{}, AppState> {
 
         this.setState({ chats });
 
-        this.displayNextQuestion(nextQuestionId);
+        setTimeout(() => this.displayNextQuestion(nextQuestionId), 1000);
         break;
     }
   }
@@ -65,6 +65,11 @@ export default class App extends React.Component<{}, AppState> {
   componentDidMount() {
     const initAnswer = "";
     this.selectAnswer(initAnswer, this.state.currentId);
+  }
+
+  componentDidUpdate() {
+    const scrollArea = document.getElementById("scroll-area");
+    if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
   }
 
   render() {
