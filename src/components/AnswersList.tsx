@@ -2,14 +2,16 @@ import React from "react";
 import defaultDataset from "../dataset";
 import { Answer } from "./index";
 
-type DefaultDataset = typeof defaultDataset;
+type DefaultDataset = {
+  [nextQuestionId: string]: {
+    answers: { content: string; nextId: string }[];
+    question: string;
+  };
+};
 
 interface AnswersListProps {
-  answers: { content: string; nextId: keyof DefaultDataset }[];
-  select: (
-    selectedAnswer: string,
-    nextQuestionId: keyof DefaultDataset
-  ) => void;
+  answers: { content: string; nextId: string }[];
+  select: (selectedAnswer: string, nextQuestionId: string) => void;
 }
 
 const AnswersList: React.FC<AnswersListProps> = (props) => {
