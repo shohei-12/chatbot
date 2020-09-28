@@ -6,7 +6,7 @@ import { AnswersList, Chats } from "./components/index";
 type DefaultDataset = typeof defaultDataset;
 
 interface AppState {
-  answers: { content: string; nextId: string }[];
+  answers: { content: string; nextId: keyof DefaultDataset }[];
   chats: { text: string; type: string }[];
   currentId: keyof DefaultDataset;
   dataset: DefaultDataset;
@@ -23,31 +23,48 @@ export default class App extends React.Component<{}, AppState> {
       dataset: defaultDataset,
       open: false,
     };
+    this.selectAnswer = this.selectAnswer.bind(this);
   }
 
-  initAnswers() {
-    const initDataset = this.state.dataset[this.state.currentId];
-    const initAnswers = initDataset.answers;
-
-    this.setState({ answers: initAnswers });
-  }
-
-  initChats() {
-    const initDataset = this.state.dataset[this.state.currentId];
-    const chat = {
-      text: initDataset.question,
-      type: "question",
-    };
-
+  displayNextQuestion(nextQuestionId: keyof DefaultDataset) {
     const chats = this.state.chats;
-    chats.push(chat);
+    chats.push({
+      text: this.state.dataset[nextQuestionId].question,
+      type: "question",
+    });
 
-    this.setState({ chats });
+    this.setState({
+      answers: this.state.dataset[nextQuestionId].answers as {
+        content: string;
+        nextId: keyof DefaultDataset;
+      }[],
+      chats: chats,
+      currentId: nextQuestionId,
+    });
+  }
+
+  selectAnswer(selectedAnswer: string, nextQuestionId: keyof DefaultDataset) {
+    switch (true) {
+      case nextQuestionId === "init":
+        this.displayNextQuestion(nextQuestionId);
+        break;
+      default:
+        const chats = this.state.chats;
+        chats.push({
+          text: selectedAnswer,
+          type: "answer",
+        });
+
+        this.setState({ chats });
+
+        this.displayNextQuestion(nextQuestionId);
+        break;
+    }
   }
 
   componentDidMount() {
-    this.initChats();
-    this.initAnswers();
+    const initAnswer = "";
+    this.selectAnswer(initAnswer, this.state.currentId);
   }
 
   render() {
@@ -55,7 +72,10 @@ export default class App extends React.Component<{}, AppState> {
       <section className="c-section">
         <div className="c-box">
           <Chats chats={this.state.chats} />
-          <AnswersList answers={this.state.answers} />
+          <AnswersList
+            answers={this.state.answers}
+            select={this.selectAnswer}
+          />
         </div>
       </section>
     );
