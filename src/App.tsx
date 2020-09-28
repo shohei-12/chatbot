@@ -1,20 +1,25 @@
 import React from "react";
 import defaultDataset from "./dataset.js";
 import "./assets/styles/style.css";
-import { AnswersList, Chats } from "./components/index";
+import { AnswersList, Chats, FormDialog } from "./components/index";
 
-type DefaultDataset = typeof defaultDataset;
+type DefaultDataset = {
+  [nextQuestionId: string]: {
+    answers: { content: string; nextId: string }[];
+    question: string;
+  };
+};
 
 interface AppState {
-  answers: { content: string; nextId: keyof DefaultDataset }[];
+  answers: { content: string; nextId: string }[];
   chats: { text: string; type: string }[];
-  currentId: keyof DefaultDataset;
+  currentId: string;
   dataset: DefaultDataset;
   open: boolean;
 }
 
-export default class App extends React.Component<{}, AppState> {
-  constructor(props: any) {
+export default class App extends React.Component<object, AppState> {
+  constructor(props: object) {
     super(props);
     this.state = {
       answers: [],
@@ -24,9 +29,11 @@ export default class App extends React.Component<{}, AppState> {
       open: false,
     };
     this.selectAnswer = this.selectAnswer.bind(this);
+    this.handleClickOpen = this.handleClickOpen.bind(this);
+    this.handleClose = this.handleClose.bind(this);
   }
 
-  displayNextQuestion(nextQuestionId: keyof DefaultDataset) {
+  displayNextQuestion(nextQuestionId: string) {
     const chats = this.state.chats;
     chats.push({
       text: this.state.dataset[nextQuestionId].question,
@@ -34,19 +41,19 @@ export default class App extends React.Component<{}, AppState> {
     });
 
     this.setState({
-      answers: this.state.dataset[nextQuestionId].answers as {
-        content: string;
-        nextId: keyof DefaultDataset;
-      }[],
+      answers: this.state.dataset[nextQuestionId].answers,
       chats: chats,
       currentId: nextQuestionId,
     });
   }
 
-  selectAnswer(selectedAnswer: string, nextQuestionId: keyof DefaultDataset) {
+  selectAnswer(selectedAnswer: string, nextQuestionId: string) {
     switch (true) {
       case nextQuestionId === "init":
-        setTimeout(() => this.displayNextQuestion(nextQuestionId), 1000);
+        setTimeout(() => this.displayNextQuestion(nextQuestionId), 500);
+        break;
+      case nextQuestionId === "contact":
+        this.handleClickOpen();
         break;
       case /^https:*/.test(nextQuestionId):
         const a = document.createElement("a");
@@ -63,9 +70,17 @@ export default class App extends React.Component<{}, AppState> {
 
         this.setState({ chats });
 
-        setTimeout(() => this.displayNextQuestion(nextQuestionId), 1000);
+        setTimeout(() => this.displayNextQuestion(nextQuestionId), 500);
         break;
     }
+  }
+
+  handleClickOpen() {
+    this.setState({ open: true });
+  }
+
+  handleClose() {
+    this.setState({ open: false });
   }
 
   componentDidMount() {
@@ -87,6 +102,7 @@ export default class App extends React.Component<{}, AppState> {
             answers={this.state.answers}
             select={this.selectAnswer}
           />
+          <FormDialog open={this.state.open} handleClose={this.handleClose} />
         </div>
       </section>
     );

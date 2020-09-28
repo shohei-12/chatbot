@@ -3,7 +3,12 @@ import defaultDataset from "../dataset";
 import { makeStyles, createStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 
-type DefaultDataset = typeof defaultDataset;
+type DefaultDataset = {
+  [nextQuestionId: string]: {
+    answers: { content: string; nextId: string }[];
+    question: string;
+  };
+};
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -22,11 +27,8 @@ const useStyles = makeStyles(() =>
 
 interface AnswerProps {
   content: string;
-  select: (
-    selectedAnswer: string,
-    nextQuestionId: keyof DefaultDataset
-  ) => void;
-  nextId: keyof DefaultDataset;
+  select: (selectedAnswer: string, nextQuestionId: string) => void;
+  nextId: string;
 }
 
 const Answer: React.FC<AnswerProps> = (props) => {
